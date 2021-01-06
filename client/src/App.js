@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
 import './App.css';
+import { Image } from "react-bootstrap";
 
 /*spotify web api library courtesy of Jose M Perez: https://github.com/jmperez/spotify-web-api-js */
 const spotifyApi = new SpotifyWebApi();
@@ -81,7 +82,8 @@ export class GetRecents extends Component {
 
     this.state = {
       loggedIn: token ? true : false,
-      size: 0
+      size: 0,
+      songs: []
     }
   }
 
@@ -111,32 +113,72 @@ export class GetRecents extends Component {
           recentTracks.push(song)
         }
         console.log(recentTracks);
-        this.setState({size: recentTracks.length});
-        return recentTracks
+        this.setState({
+          size: recentTracks.length,
+          songs : recentTracks.slice()
+        });
       })
   }
 
   render() {
+
+    //if (this.state.loggedIn) {
+      //let songs = this.getRecentTracks();
+   // }
+    //this.getRecentTracks();
+    let songs = this.state.songs;
+    console.log(this.state.size);
     let rows = [];
     for (var i = 0; i < this.state.size; i++){
       let rowID = `row${i}`
       let cell = []
       for (var idx = 0; idx < 3; idx++){
         let cellID = `cell${i}-${idx}`
-        cell.push(<td key={cellID} id={cellID}></td>)
+        if (idx === 0){
+          cell.push(
+            <td key={cellID} id={cellID}>
+              <Image
+                src={songs[i].image}
+                alt="album art"
+                width="75"
+                height="75"
+                rounded
+              />
+            </td>)
+        }
+        else if (idx === 1){
+          cell.push(<td key={cellID} id={cellID}>{songs[i].title}</td>)
+        }
+        else{
+          cell.push(<td key={cellID} id={cellID}>{songs[i].artist}</td>)
+        }
       }
       rows.push(<tr key={i} id={rowID}>{cell}</tr>)
     }
 
     return(
+      
       <div className = "GetRecents" >
-        <div>{
-         this.state.loggedIn && 
+        <div>
+          { this.state.loggedIn &&
           <button onClick={() => this.getRecentTracks()}>
-          check recents
-        </button> 
-      }</div>
+            Check recents
+          </button>
+          }
+        </div>
+        <div className="container">
+        <div className="row">
+          <div className="col s12 board">
+            <table id="simple-board">
+               <tbody>
+                 {rows}
+               </tbody>
+             </table>
+          </div>
+        </div>
       </div>
+      </div>
+
     )
 
   }
